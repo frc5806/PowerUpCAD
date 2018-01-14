@@ -1,0 +1,11 @@
+{
+    "motor_type": "cim",
+    "num_motors": 4,
+    "gear_reduction": 5,
+    "wheel_diameter": 4,
+    "coeff_friction": 1.2,
+    "weight": 65,
+    "wheelbase": 12,
+    "com_height": 2.75,
+    "com_displacement": 0
+}
