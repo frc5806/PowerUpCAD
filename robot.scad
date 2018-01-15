@@ -12,6 +12,10 @@ CHASSIS_CUTOUT_DEPTH = 10;
 BOX_TUBE_WIDTH = 1;
 BOX_TUBE_HEIGHT = 2;
 
+// Superstructure box tube parameters
+SUPER_TUBE_WIDTH = 1;
+SUPER_TUBE_HEIGHT = 1;
+
 // Bumper parameters
 BUMPER_THICK = 3.25;
 BUMPER_HEIGHT = 5;
@@ -23,6 +27,9 @@ WHEEL_X_SPACING = 0.125; // Distance from edge of wheel to left and right box tu
 WHEEL_Y_SPACING = 0.25; // Distance from wheel to front and rear box tubing.
 WHEEL_CENTER_OFFSET = 0.375; // Vertical offset for the wheels into the box tube.
 
+// Climber parameters
+CLIMBER_Y_LOC = 9.4;
+
 module bumpers(width, length, cutout_width, thick, height) {
     translate([-thick,-thick,0]) cube([thick,length+2*thick,height]);
     translate([-thick,-thick,0]) cube([width+2*thick,thick,height]);
@@ -32,28 +39,39 @@ module bumpers(width, length, cutout_width, thick, height) {
     translate([(width+cutout_width)/2,length,0])cube([thick+(width-cutout_width)/2,thick,height]);
 }
 
-module box_chassis(width, length, cutout_width, cutout_depth) {
+module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc) {
     
     bumper_width = (width-cutout_width)/2;
     
-    cube([width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
+    // ---- CHASSIS ----
     
-    translate([0,length-BOX_TUBE_WIDTH,0]) cube([bumper_width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
-    translate([width-bumper_width,length-BOX_TUBE_WIDTH,0]) cube([bumper_width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
-
+    // Outer 3 beams
+    cube([width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
     translate([0,0,0]) cube([BOX_TUBE_WIDTH,length,BOX_TUBE_HEIGHT]);
     translate([width-BOX_TUBE_WIDTH,0,0]) cube([BOX_TUBE_WIDTH,length,BOX_TUBE_HEIGHT]);
 
+    // Front 2 bumpers
+    translate([0,length-BOX_TUBE_WIDTH,0]) cube([bumper_width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
+    translate([width-bumper_width,length-BOX_TUBE_WIDTH,0]) cube([bumper_width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
+    
+    // Inner two channels
     translate([bumper_width-BOX_TUBE_WIDTH,0,0]) cube([BOX_TUBE_WIDTH,length,BOX_TUBE_HEIGHT]);
     translate([width-bumper_width,0,0]) cube([BOX_TUBE_WIDTH,length,BOX_TUBE_HEIGHT]);
+
+    // Cutout bridge
     translate([bumper_width,length-cutout_depth-BOX_TUBE_WIDTH,0]) cube([cutout_width,BOX_TUBE_WIDTH,BOX_TUBE_HEIGHT]);
+    
+    // Climber bottom beam
+    translate([bumper_width,climber_y_loc-BOX_TUBE_HEIGHT/2,0]) cube([cutout_width,BOX_TUBE_HEIGHT,BOX_TUBE_WIDTH]);
+    
+    // ---- SUPER ----
 }
 
 module full_chassis() {
     
     // Box tube chassis
     color([.2,.2,.2]) {
-        translate([0,0,(WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2-WHEEL_CENTER_OFFSET])box_chassis(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, CHASSIS_CUTOUT_DEPTH);
+        translate([0,0,(WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2-WHEEL_CENTER_OFFSET])box_chassis(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, CHASSIS_CUTOUT_DEPTH, CLIMBER_Y_LOC);
     }
     // Bumpers
     color([0.7,0,0]) {
@@ -72,7 +90,8 @@ module full_chassis() {
     }
     
     color([0,0.4,0]) {
-        if("shifting" == "shifting") {
+        GEARBOX_STYLE = "shifting";
+        if(GEARBOX_STYLE == "shifting") {
             // Add dog-shifting gearboxes (tentatively)
             translate([CHASSIS_FRONT_BUMPER_WIDTH,CHASSIS_LENGTH/2,WHEEL_DIAMETER/2]) shifting_gearbox();
             translate([CHASSIS_WIDTH-CHASSIS_FRONT_BUMPER_WIDTH,CHASSIS_LENGTH/2,WHEEL_DIAMETER/2]) mirror([1,0,0]) shifting_gearbox();
@@ -98,6 +117,15 @@ module full_chassis() {
         else big_compressor();
     }
     
+    // Put in the climber winch
+    color([0.6,0,1]) {
+        CLIMBER_WINCH_WIDTH = 2.5;
+        CLIMBER_WINCH_DIAMETER = 1.5;
+        translate([CHASSIS_WIDTH/2+CLIMBER_WINCH_WIDTH/2,CLIMBER_Y_LOC,(WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2+BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) p80_minicim();
+        translate([CHASSIS_WIDTH/2-CLIMBER_WINCH_WIDTH/2,CLIMBER_Y_LOC,(WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2+BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) mirror([1,0,0]) p80_minicim();
+        translate([CHASSIS_WIDTH/2,CLIMBER_Y_LOC,(WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2+BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET+1.25]) rotate([0,90,0]) cylinder(CLIMBER_WINCH_WIDTH, d=CLIMBER_WINCH_DIAMETER, center=true, $fn=60);
+    }
+    
     // Build the arm
     ARM_ANGLE = 0;
     PIVOT_POINT_Y = 4.25;
@@ -110,15 +138,18 @@ module full_chassis() {
         color([1,1,1]) {
             translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z]) rotate([0,90,0]) cylinder(CHASSIS_WIDTH,d=0.5, $fn=60);
         }
+        
+        // Put in the arm itself
+        color([0,0.6,1]) {}
     
         // Put a pretty box there for visualization
         color([.9,1,0.2]) {
-            translate([CHASSIS_WIDTH/2,25.5,0]) box();
+            translate([CHASSIS_WIDTH/2,25.5,1]) box();
         }
     }
 }
 
-// ---- Robot stuff ----
+// ---- ROBOT STUFF ----
 
 // Robot chassis
 full_chassis();
@@ -126,7 +157,7 @@ full_chassis();
 // For determining the height of the chassis
 // cube([1,1,1.625]);
 
-// ---- Field elements ----
+// ---- FIELD ELEMENTS ----
 
 // Can we shoot to the switch?
 // translate([0,32]) fence();

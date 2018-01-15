@@ -30,3 +30,19 @@ module little_compressor() {
 module big_compressor() {
     translate([-3.27/2,0,0]) cube([3.27,6.75,5.25]);
 }
+
+// CIM motor
+module cim() {
+    rotate([0,90,0]) cylinder(4.34,d=2.5, $fn=40);
+}
+
+// Mini-CIM motor
+module minicim() {
+    rotate([0,90,0]) cylinder(3.36,d=2.5, $fn=40);
+}
+
+// A p80 gearbox with a Mini-CIM attached
+module p80_minicim() {
+    translate([0,-1.25,0]) cube([3.2,2.5,2.5]);
+    translate([3.2,0,1.25]) minicim();
+}
