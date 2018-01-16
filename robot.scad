@@ -34,13 +34,14 @@ CLIMBER_Z_OFFSET = SUPER_HEIGHT-2.5;
 CLIMBER_CENTER_WIDTH = 2.5;
 CLIMBER_WINCH_DIAMETER = 1.5;
 
-// Extra bar parameters
-BAR_DIAMETER = 1;
-BAR_HEIGHT = 4;
-
 // Other derived, useful parameters
 BASE_CHASSIS_HEIGHT = (WHEEL_DIAMETER-BOX_TUBE_HEIGHT)/2-WHEEL_CENTER_OFFSET;
 BUMPER_WIDTH = (CHASSIS_WIDTH-CHASSIS_CUTOUT_WIDTH)/2;
+
+// Extra bar parameters
+BAR_DIAMETER = 1;
+BAR_HEIGHT = 4;
+BAR_X_LOC = BUMPER_WIDTH; //+SUPER_TUBE_WIDTH;
 
 module bumpers(width, length, cutout_width, thick, height) {
     translate([-thick,-thick,0]) cube([thick,length+2*thick,height]);
@@ -92,8 +93,8 @@ module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc, cli
         translate([CHASSIS_WIDTH-SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
         
         // Front inner pillars
-        translate([bumper_width-SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT+BAR_HEIGHT]);
-        translate([width-bumper_width,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT+BAR_HEIGHT]);
+        translate([bumper_width-SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
+        translate([width-bumper_width,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
         
         // Side beams
         translate([width-SUPER_TUBE_WIDTH,0,SUPER_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
@@ -110,16 +111,20 @@ module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc, cli
         translate([(width-CLIMBER_CENTER_WIDTH)/2-SUPER_TUBE_WIDTH,0,SUPER_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
         translate([(width+CLIMBER_CENTER_WIDTH)/2,0,SUPER_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
         
-        // Upper beams
-        translate([BUMPER_WIDTH-SUPER_TUBE_HEIGHT,0,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
-        translate([width-BUMPER_WIDTH,0,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
+        // Back bar pillars
+        translate([BAR_X_LOC-SUPER_TUBE_HEIGHT,0,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
+        translate([width-BAR_X_LOC,0,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
         
-        // Upper beams
-        translate([BUMPER_WIDTH-SUPER_TUBE_HEIGHT,0,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
-        translate([width-BUMPER_WIDTH,0,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
+        // Front bar pillars
+        translate([BAR_X_LOC-SUPER_TUBE_HEIGHT,FRONT_PILLAR_Y,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
+        translate([width-BAR_X_LOC,FRONT_PILLAR_Y,SUPER_HEIGHT]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,BAR_HEIGHT]);
+        
+        // Bar beams
+        translate([BAR_X_LOC-SUPER_TUBE_HEIGHT,0,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
+        translate([width-BAR_X_LOC,0,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
         
         // Cross tube
-        translate([BUMPER_WIDTH,SUPER_TUBE_WIDTH/2,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT/2]) rotate([0,90,0]) cylinder(CHASSIS_CUTOUT_WIDTH,d=BAR_DIAMETER, $fn=60);
+        translate([BAR_X_LOC,SUPER_TUBE_WIDTH/2,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT/2]) rotate([0,90,0]) cylinder(CHASSIS_WIDTH-2*BAR_X_LOC,d=BAR_DIAMETER, $fn=60);
     }
 }
 
@@ -204,9 +209,9 @@ module full_chassis() {
     // Add in the climber's ratcheting mechanism
     
     // Build the arm
-    ARM_ANGLE = 0;
+    ARM_ANGLE = 70;
     PIVOT_POINT_Y = 0.5; //4.25;
-    PIVOT_POINT_Z = 9; //3;
+    PIVOT_POINT_Z = 10;//7.125;
     translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z])
     rotate([ARM_ANGLE,0,0])
     translate([0,-PIVOT_POINT_Y,-PIVOT_POINT_Z])
@@ -215,11 +220,46 @@ module full_chassis() {
         color([1,1,1]) {
             translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z]) rotate([0,90,0]) cylinder(CHASSIS_WIDTH,d=0.5, $fn=60);
         }
+        // Chromoly
+        color([0.4,.4,0.6]) {
+            // Long beams
+            translate([BAR_X_LOC-SUPER_TUBE_WIDTH-0.5,0,PIVOT_POINT_Z-.5]) cube([0.5,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,1]);
+            translate([CHASSIS_WIDTH-BAR_X_LOC+SUPER_TUBE_WIDTH,0,PIVOT_POINT_Z-.5]) cube([0.5,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,1]);
+            
+            // Back vertical pieces
+            translate([BUMPER_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,0]) cube([0.5,1,PIVOT_POINT_Z+.5]);
+            translate([CHASSIS_WIDTH-BUMPER_WIDTH-.5,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,0]) cube([0.5,1,PIVOT_POINT_Z+.5]);
+            
+            // Front vertical pieces
+            translate([BUMPER_WIDTH,CHASSIS_LENGTH-1,0]) cube([0.5,1,PIVOT_POINT_Z+.5]);
+            translate([CHASSIS_WIDTH-BUMPER_WIDTH-.5,CHASSIS_LENGTH-1,0]) cube([0.5,1,PIVOT_POINT_Z+.5]);
+            
+            // Upper beams
+            translate([BUMPER_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,PIVOT_POINT_Z-.5]) cube([0.5,CHASSIS_CUTOUT_DEPTH,1]);
+            translate([CHASSIS_WIDTH-BUMPER_WIDTH-.5,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,PIVOT_POINT_Z-.5]) cube([0.5,CHASSIS_CUTOUT_DEPTH,1]);
+            
+            // Lower crossbar
+            translate([BUMPER_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH-.5,5.125]) cube([CHASSIS_CUTOUT_WIDTH,.5,1]);
+            
+            // Upper crossbar
+            translate([BAR_X_LOC-SUPER_TUBE_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH-.5,PIVOT_POINT_Z-.5]) cube([CHASSIS_WIDTH-2*(BAR_X_LOC-SUPER_TUBE_WIDTH),.5,1]);
+            
+            // Vertical crossbar connecting bar
+            translate([CHASSIS_WIDTH/2-.5,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH-.5,6.125]) cube([1,.5,PIVOT_POINT_Z+.5-6.125]);
+            
+            // Shovel
+            translate([BUMPER_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,0])cube([CHASSIS_CUTOUT_WIDTH,CHASSIS_CUTOUT_DEPTH,.125]);
         
-        // Piston
+        }
+        
+        // Pistons
         color([1,0.5,0]) {
-            translate([CHASSIS_WIDTH/2,6.8,6])
-            rotate([-90,0,0]) cylinder(12,d=1.5, $fn=60);
+            // Piston #1
+            translate([CHASSIS_WIDTH/2-.5,6.5,5.625])
+            rotate([-90,0,0]) cylinder(12,d=.86, $fn=60);
+            // Piston #1
+            translate([CHASSIS_WIDTH/2+.5,6.5,5.625])
+            rotate([-90,0,0]) cylinder(12,d=.86, $fn=60);
         } 
         
         // Put in the arm itself
@@ -227,7 +267,7 @@ module full_chassis() {
     
         // Put a pretty box there for visualization
         color([.9,1,0.2]) {
-            translate([CHASSIS_WIDTH/2,25.5,1]) box();
+            translate([CHASSIS_WIDTH/2,25.5,0.125]) box();
         }
     }
 }
@@ -243,7 +283,7 @@ full_chassis();
 // ---- FIELD ELEMENTS ----
 
 // Can we shoot to the switch?
- translate([0,32]) fence();
+translate([0,32]) fence();
 
 // Can we pass over the wire protector?
 // translate([0,25.5]) bump();
