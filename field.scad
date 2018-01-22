@@ -13,7 +13,7 @@ module bump() {
 
 // A 15 degree ramp.
 module ramp() {
-    rotate([15,0]) cube([30,30,.01]);
+    rotate([15.35,0]) cube([35,13.22,.01]);
 }
 
 // The fence for the switch
