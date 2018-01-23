@@ -13,7 +13,7 @@ module not_reversed_shifting_gearbox(num_cims=3) {
 
 // The WCP 2-CIM dog-style gearbox.
 module shifting_gearbox() {
-    translate([0,-7.3/2,-1.75]) cube([3.61,7.3,6.1]);
+    translate([0,-7.7/2,-1.75]) cube([3.61,7.7,6.1]);
 }
 
 // The 2/3-CIM single stage 5.33:1 gearbox.

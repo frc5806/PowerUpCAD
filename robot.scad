@@ -29,7 +29,7 @@ WHEEL_Y_SPACING = 0.1875; // Distance from wheel to front and rear box tubing.
 WHEEL_CENTER_OFFSET = 0.375; // Vertical offset for the wheels into the box tube.
 
 // Climber parameters
-CLIMBER_Y_LOC = 8.85;
+CLIMBER_Y_LOC = 8.75;
 CLIMBER_Z_OFFSET = SUPER_HEIGHT-2.5;
 CLIMBER_CENTER_WIDTH = 2.5;
 CLIMBER_WINCH_DIAMETER = 1.5;
@@ -86,7 +86,7 @@ module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc, cli
         translate([CHASSIS_WIDTH-BOX_TUBE_WIDTH,0,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
         translate([(CHASSIS_WIDTH-BOX_TUBE_WIDTH)/2,0,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
         
-        FRONT_PILLAR_Y = 9.25; //length-cutout_depth-2*SUPER_TUBE_WIDTH;
+        FRONT_PILLAR_Y = 9; //length-cutout_depth-2*SUPER_TUBE_WIDTH;
         
         // Front outer pillars
         translate([0,FRONT_PILLAR_Y,0]) cube([SUPER_TUBE_WIDTH,SUPER_TUBE_HEIGHT,SUPER_HEIGHT]);
@@ -137,7 +137,7 @@ module full_chassis() {
     
     // Bumpers
     color([0.7,0,0]) {
-        translate([0,0,WHEEL_DIAMETER/2-BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) bumpers(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, BUMPER_THICK, BUMPER_HEIGHT);
+        //translate([0,0,WHEEL_DIAMETER/2-BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) bumpers(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, BUMPER_THICK, BUMPER_HEIGHT);
     }
     
     // (Lots) of wheels
@@ -209,7 +209,7 @@ module full_chassis() {
     // Add in the climber's ratcheting mechanism
     
     // Build the arm
-    ARM_ANGLE = 70;
+    ARM_ANGLE = 36;
     PIVOT_POINT_Y = 0.5; //4.25;
     PIVOT_POINT_Z = 10;//7.125;
     translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z])
@@ -272,6 +272,8 @@ module full_chassis() {
     }
 }
 
+translate([6,5,5.625]) cube([5.7,1,1]);
+
 // ---- ROBOT STUFF ----
 
 // Robot chassis
@@ -283,7 +285,7 @@ full_chassis();
 // ---- FIELD ELEMENTS ----
 
 // Can we shoot to the switch?
-translate([0,32]) fence();
+//translate([0,32]) fence();
 
 // Can we pass over the wire protector?
 // translate([0,25.5]) bump();
