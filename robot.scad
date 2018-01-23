@@ -43,6 +43,15 @@ BAR_DIAMETER = 1;
 BAR_HEIGHT = 4;
 BAR_X_LOC = BUMPER_WIDTH; //+SUPER_TUBE_WIDTH;
 
+IO_ARM_X_POS = 4;
+IO_ARM_Y_POS = 24;
+IO_ARM_LENGTH = 11;
+        
+module io_arm(){
+    color([0.5,0.5,0.5]) translate([-.5,-.5,0]) cube([1,IO_ARM_LENGTH-.5,1]);
+    color([0.1,0.1,0.1]) translate([-.5,IO_ARM_LENGTH-1,0]) cube([2,2,1]);
+    color([0.9,0,0.9])translate([.5,IO_ARM_LENGTH,-.5]) cylinder(1, d=4, center=true, $fn=40);
+}
 module bumpers(width, length, cutout_width, thick, height) {
     translate([-thick,-thick,0]) cube([thick,length+2*thick,height]);
     translate([-thick,-thick,0]) cube([width+2*thick,thick,height]);
@@ -128,7 +137,7 @@ module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc, cli
     }
 }
 
-module full_chassis() {
+module full_chassis(POSITION) {
     
     // Box tube chassis
     color([.2,.2,.2]) {
@@ -137,7 +146,7 @@ module full_chassis() {
     
     // Bumpers
     color([0.7,0,0]) {
-        //translate([0,0,WHEEL_DIAMETER/2-BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) bumpers(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, BUMPER_THICK, BUMPER_HEIGHT);
+        translate([0,0,WHEEL_DIAMETER/2-BOX_TUBE_HEIGHT/2-WHEEL_CENTER_OFFSET]) bumpers(CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_CUTOUT_WIDTH, BUMPER_THICK, BUMPER_HEIGHT);
     }
     
     // (Lots) of wheels
@@ -207,9 +216,12 @@ module full_chassis() {
     }
     
     // Add in the climber's ratcheting mechanism
+    // lol will do it someday
     
     // Build the arm
-    ARM_ANGLE = 36;
+    MAX_ARM_ANGLE = 40;
+    ARM_ANGLE = POSITION == "loading" || POSITION == "stowed" ? 0 : MAX_ARM_ANGLE;
+    // ARM_ANGLE = 40; // Reassign the angle for testing purpose if desired
     PIVOT_POINT_Y = 0.5; //4.25;
     PIVOT_POINT_Z = 10;//7.125;
     translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z])
@@ -262,22 +274,37 @@ module full_chassis() {
             rotate([-90,0,0]) cylinder(12,d=.86, $fn=60);
         } 
         
-        // Put in the arm itself
-        color([0,0.6,1]) {}
-    
-        // Put a pretty box there for visualization
-        color([.9,1,0.2]) {
-            translate([CHASSIS_WIDTH/2,25.5,0.125]) box();
+        // Add in the io
+        if(POSITION != "stowed"){
+            translate([IO_ARM_X_POS,IO_ARM_Y_POS,PIVOT_POINT_Z-.5]) rotate([0,0,-18]) mirror([1,0,0]) io_arm();
+            translate([CHASSIS_WIDTH-IO_ARM_X_POS,IO_ARM_Y_POS,PIVOT_POINT_Z-.5]) rotate([0,0,18]) io_arm();
+        }
+        else{
+            translate([IO_ARM_X_POS,IO_ARM_Y_POS,PIVOT_POINT_Z-.5]) rotate([0,0,166]) mirror([1,0,0]) io_arm();
+            translate([CHASSIS_WIDTH-IO_ARM_X_POS,IO_ARM_Y_POS,PIVOT_POINT_Z-.5]) rotate([0,0,-166]) io_arm();
+        }
+        
+        
+        // pretty box
+        if(POSITION != "stowed"){
+            color([.9,1,0.2]) {
+                translate([CHASSIS_WIDTH/2,25.5,0.125]) box();
+            }
+        }
+        else{
+            color([.9,1,0.2]) {
+                translate([CHASSIS_WIDTH/2,45,0.125]) box();
+            }
         }
     }
+    
 }
-
-translate([6,5,5.625]) cube([5.7,1,1]);
 
 // ---- ROBOT STUFF ----
 
 // Robot chassis
-full_chassis();
+POSITION = "stowed";// (Strings) "stowed, "loading", "raised", "shooting", or "shot" : correspo
+full_chassis(POSITION);
 
 // For determining the height of the chassis
 // cube([1,1,1.625]);
@@ -285,7 +312,7 @@ full_chassis();
 // ---- FIELD ELEMENTS ----
 
 // Can we shoot to the switch?
-//translate([0,32]) fence();
+//translate([0,35]) fence();
 
 // Can we pass over the wire protector?
-// translate([0,25.5]) bump();
+ //translate([0,25.5]) bump();
