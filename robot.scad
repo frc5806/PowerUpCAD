@@ -42,6 +42,7 @@ BUMPER_WIDTH = (CHASSIS_WIDTH-CHASSIS_CUTOUT_WIDTH)/2;
 BAR_DIAMETER = 1;
 BAR_HEIGHT = 4;
 BAR_X_LOC = BUMPER_WIDTH; //+SUPER_TUBE_WIDTH;
+BAR_Y_LOC = 5;
 
 IO_ARM_X_POS = 4;
 IO_ARM_Y_POS = 24;
@@ -133,7 +134,7 @@ module box_chassis(width, length, cutout_width, cutout_depth, climber_y_loc, cli
         translate([width-BAR_X_LOC,0,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT]) cube([SUPER_TUBE_WIDTH,FRONT_PILLAR_Y,SUPER_TUBE_HEIGHT]);
         
         // Cross tube
-        translate([BAR_X_LOC,SUPER_TUBE_WIDTH/2,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT/2]) rotate([0,90,0]) cylinder(CHASSIS_WIDTH-2*BAR_X_LOC,d=BAR_DIAMETER, $fn=60);
+        translate([BAR_X_LOC,BAR_Y_LOC,SUPER_HEIGHT+BAR_HEIGHT-SUPER_TUBE_HEIGHT/2]) rotate([0,90,0]) cylinder(CHASSIS_WIDTH-2*BAR_X_LOC,d=BAR_DIAMETER, $fn=60);
     }
 }
 
@@ -219,11 +220,12 @@ module full_chassis(POSITION) {
     // lol will do it someday
     
     // Build the arm
-    MAX_ARM_ANGLE = 40;
+    MAX_ARM_ANGLE = 70;
     ARM_ANGLE = POSITION == "loading" || POSITION == "stowed" ? 0 : MAX_ARM_ANGLE;
-    // ARM_ANGLE = 40; // Reassign the angle for testing purpose if desired
+    ARM_ANGLE = 70; // Reassign the angle for testing purpose if desired
     PIVOT_POINT_Y = 0.5; //4.25;
     PIVOT_POINT_Z = 10;//7.125;
+    LAC_ANGLE = 20;
     translate([0,PIVOT_POINT_Y,PIVOT_POINT_Z])
     rotate([ARM_ANGLE,0,0])
     translate([0,-PIVOT_POINT_Y,-PIVOT_POINT_Z])
@@ -261,8 +263,10 @@ module full_chassis(POSITION) {
             
             // Shovel
             translate([BUMPER_WIDTH,CHASSIS_LENGTH-CHASSIS_CUTOUT_DEPTH,0])cube([CHASSIS_CUTOUT_WIDTH,CHASSIS_CUTOUT_DEPTH,.125]);
-        
         }
+            
+        // Mark position #2 of lac attatchment
+        color([1,.5,.5]) translate([4,PIVOT_POINT_Y+cos(LAC_ANGLE)*10.43,PIVOT_POINT_Z+sin(LAC_ANGLE)*10.43]) cube([1,1,1], center=true);
         
         // Pistons
         color([1,0.5,0]) {
@@ -298,6 +302,10 @@ module full_chassis(POSITION) {
         }
     }
     
+    // Mark position #1 of lac attatchment
+    ang = -20;
+    color([1,.5,.5]) 
+    translate([0,17*cos(ang),17*sin(ang)])translate([4,PIVOT_POINT_Y+cos(LAC_ANGLE)*10.43,PIVOT_POINT_Z+sin(LAC_ANGLE)*10.43]) rotate([0,0,0]) cube([1,1,1], center=true);
 }
 
 // ---- ROBOT STUFF ----
@@ -312,7 +320,10 @@ full_chassis(POSITION);
 // ---- FIELD ELEMENTS ----
 
 // Can we shoot to the switch?
-//translate([0,35]) fence();
+translate([0,35]) switch_fence();
+
+// Or the scale?
+//translate([0,35]) scale_fence("UP");
 
 // Can we pass over the wire protector?
  //translate([0,25.5]) bump();

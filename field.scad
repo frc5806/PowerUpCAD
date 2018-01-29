@@ -17,6 +17,12 @@ module ramp() {
 }
 
 // The fence for the switch
-module fence() {
+module switch_fence() {
     translate([-10,0]) cube([48,0.25,18]);
+}
+
+// An equivalent fence for the scale.
+// Parameter is one of "DOWN", "MID", or "UP"
+module scale_fence(position) {
+    translate([-10,0]) cube([48,0.25, position == "UP" ? 72 : position == "DOWN" ? 48 : 60]);
 }
